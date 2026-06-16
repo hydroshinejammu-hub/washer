@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Admin — DoorstepsWash Jammu</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#006B5E;--teal2:#005048;--teal3:#00BFA5;
+  --yellow:#FFD600;
+  --dark:#0D1117;--dark2:#161B22;--dark3:#21262D;
+  --card:#1C2128;--card2:#22272E;
+  --border:#30363D;--border2:#3D444D;
+  --text:#E6EDF3;--text2:#8B949E;--text3:#656D76;
+  --red:#F85149;--red-bg:rgba(248,81,73,.12);
+  --green:#3FB950;--green-bg:rgba(63,185,80,.12);
+  --yellow-bg:rgba(255,214,0,.12);
+  --blue:#58A6FF;--blue-bg:rgba(88,166,255,.12);
+  --purple:#BC8CFF;--purple-bg:rgba(188,140,255,.12);
+  --orange:#FFA657;--orange-bg:rgba(255,166,87,.12);
+  --font:'Poppins',sans-serif;
+  --r:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;line-height:1}
+button{cursor:pointer;font-family:var(--font);border:none}
+a{text-decoration:none;color:inherit}
+input,select,textarea{font-family:var(--font)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--dark)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* ═══════════ LOCKED SCREEN ═══════════ */
+#lockScreen{
+  position:fixed;inset:0;background:var(--dark);z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+}
+.lock-logo{margin-bottom:32px;text-align:center}
+.lock-logo .ll-ic{
+  width:64px;height:64px;background:linear-gradient(135deg,var(--teal),#00BFA5);
+  border-radius:18px;display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;margin:0 auto 12px;box-shadow:0 8px 24px rgba(0,107,94,.4)
+}
+.lock-logo h1{font-size:1.15rem;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.lock-logo p{font-size:.72rem;color:var(--text2);margin-top:4px;font-weight:500}
+.lock-box{
+  width:100%;max-width:360px;background:var(--card);
+  border:1px solid var(--border);border-radius:14px;padding:24px;
+}
+.lock-box h2{font-size:.82rem;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:18px}
+.lf{margin-bottom:14px}
+.lf label{display:block;font-size:.7rem;font-weight:700;color:var(--text2);margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+.lfc{
+  width:100%;background:var(--dark);border:1.5px solid var(--border);
+  color:var(--text);padding:11px 14px;border-radius:8px;font-size:.85rem;
+  outline:none;transition:border-color .15s
+}
+.lfc:focus{border-color:var(--teal3)}
+.lock-attempts{font-size:.72rem;color:var(--text3);margin-bottom:14px;height:16px}
+.lock-attempts.warn{color:var(--orange)}
+.lock-attempts.danger{color:var(--red)}
+.lock-btn{
+  width:100%;background:linear-gradient(135deg,var(--teal),var(--teal3));
+  color:#fff;padding:12px;border-radius:8px;font-size:.85rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .15s;letter-spacing:.3px
+}
+.lock-btn:disabled{opacity:.5;cursor:not-allowed}
+.lock-btn .sp{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.lock-error{background:var(--red-bg);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:10px 12px;font-size:.75rem;color:var(--red);margin-top:12px;display:none;line-height:1.5}
+.lock-cooldown{background:var(--orange-bg);border:1px solid rgba(255,166,87,.3);border-radius:8px;padding:12px;font-size:.78rem;color:var(--orange);text-align:center;display:none;line-height:1.7}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake .3s ease}
+
+/* ═══════════ DASHBOARD LAYOUT ═══════════ */
+#dashboard{display:none}
+.top-bar{
+  background:var(--dark2);border-bottom:1px solid var(--border);
+  padding:0 16px;height:54px;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;z-index:100
+}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-logo{display:flex;align-items:center;gap:8px}
+.tb-logo-ic{width:28px;height:28px;background:linear-gradient(135deg,var(--teal),var(--teal3));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.tb-logo-text{font-size:.88rem;font-weight:800;color:var(--text);letter-spacing:-.2px}
+.tb-logo-text span{color:var(--teal3)}
+.tb-badge{background:var(--teal);color:#fff;font-size:.58rem;font-weight:800;padding:2px 7px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-time{font-size:.68rem;color:var(--text3);font-weight:600}
+.tb-logout{background:var(--red-bg);border:1px solid rgba(248,81,73,.3);color:var(--red);padding:6px 12px;border-radius:7px;font-size:.7rem;font-weight:700}
+
+/* ═══════════ TABS ═══════════ */
+.main-tabs{
+  display:flex;background:var(--dark2);border-bottom:1px solid var(--border);
+  padding:0 16px;gap:0;overflow-x:auto;scrollbar-width:none
+}
+.mt{
+  padding:12px 16px;font-size:.75rem;font-weight:700;color:var(--text2);
+  border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;
+  transition:all .15s;display:flex;align-items:center;gap:6px
+}
+.mt.active{color:var(--teal3);border-bottom-color:var(--teal3)}
+.mt-badge{background:var(--teal);color:#fff;border-radius:100px;font-size:.58rem;font-weight:800;padding:1px 6px;min-width:18px;text-align:center}
+
+/* ═══════════ CONTENT AREA ═══════════ */
+.tab-content{padding:16px;max-width:700px;margin:0 auto}
+
+/* ═══════════ STATS ROW ═══════════ */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 10px;text-align:center}
+.sc-val{font-size:1.5rem;font-weight:900;line-height:1}
+.sc-lbl{font-size:.58rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-top:4px}
+.sc-pending .sc-val{color:var(--orange)}
+.sc-confirmed .sc-val{color:var(--blue)}
+.sc-done .sc-val{color:var(--green)}
+.sc-total .sc-val{color:var(--text)}
+
+/* ═══════════ FILTER + SEARCH ═══════════ */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filter-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
+.fc-chip{
+  flex-shrink:0;padding:6px 12px;border-radius:100px;font-size:.68rem;font-weight:700;
+  border:1px solid var(--border2);background:var(--card);color:var(--text2);
+  cursor:pointer;transition:all .15s;white-space:nowrap
+}
+.fc-chip.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.search-wrap{position:relative;width:100%}
+.search-wrap input{
+  width:100%;background:var(--card);border:1px solid var(--border);
+  color:var(--text);padding:9px 12px 9px 34px;border-radius:8px;
+  font-size:.8rem;outline:none;transition:border-color .15s
+}
+.search-wrap input:focus{border-color:var(--teal3)}
+.search-wrap input::placeholder{color:var(--text3)}
+.search-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.85rem;pointer-events:none}
+
+/* ═══════════ BOOKING CARDS ═══════════ */
+.bk-list{display:flex;flex-direction:column;gap:8px}
+.bk-card{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  overflow:hidden;transition:border-color .15s
+}
+.bk-card:hover{border-color:var(--border2)}
+.bk-header{padding:12px 14px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;border-bottom:1px solid var(--border)}
+.bk-info{flex:1;min-width:0}
+.bk-name{font-size:.88rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:6px}
+.bk-meta{font-size:.65rem;color:var(--text3);font-weight:600;margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bk-meta span{display:flex;align-items:center;gap:3px}
+.status-pill{font-size:.62rem;font-weight:800;padding:4px 10px;border-radius:100px;flex-shrink:0;letter-spacing:.3px;text-transform:uppercase}
+.sp-pending{background:var(--orange-bg);color:var(--orange);border:1px solid rgba(255,166,87,.3)}
+.sp-confirmed{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(88,166,255,.3)}
+.sp-completed{background:var(--green-bg);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+.sp-cancelled{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+.sp-rejected{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,81,73,.3)}
+.bk-body{padding:10px 14px}
+.bk-rows{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-bottom:10px}
+.bk-row{font-size:.72rem;color:var(--text2);display:flex;align-items:flex-start;gap:5px;line-height:1.5}
+.bk-row.full{grid-column:1/-1}
+.bk-row .ri{flex-shrink:0;font-size:.75rem;margin-top:1px}
+.user-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 9px;border-radius:100px;font-size:.62rem;font-weight:700;
+  margin-bottom:8px
+}
+.user-chip.reg{background:var(--green-bg);color:var(--green);border:1px solid rgba(63,185,80,.25)}
+.user-chip.guest{background:var(--card2);color:var(--text3);border:1px solid var(--border)}
+.bk-actions{display:flex;gap:6px;flex-wrap:wrap}
+.bk-btn{
+  flex:1;min-width:64px;padding:8px 6px;border-radius:7px;font-size:.68rem;font-weight:800;
+  border:1px solid var(--border2);background:var(--card2);color:var(--text2);
+  transition:all .15s;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:4px
+}
+.bk-btn:hover{transform:translateY(-1px)}
+.btn-ok{color:var(--green);border-color:rgba(63,185,80,.3)}
+.btn-ok:hover{background:var(--green);color:#000;border-color:var(--green)}
+.btn-rej{color:var(--red);border-color:rgba(248,81,73,.3)}
+.btn-rej:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-done{color:var(--purple);border-color:rgba(188,140,255,.3)}
+.btn-done:hover{background:var(--purple);color:#000;border-color:var(--purple)}
+.btn-call:hover{background:var(--text);color:var(--dark);border-color:var(--text)}
+.btn-wa{color:#25D366;border-color:rgba(37,211,102,.3)}
+.btn-wa:hover{background:#25D366;color:#000;border-color:#25D366}
+
+/* ═══════════ EMPTY + LOADING ═══════════ */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3)}
+.es-icon{font-size:2.2rem;margin-bottom:10px}
+.es-title{font-size:.88rem;font-weight:700;color:var(--text2);margin-bottom:4px}
+.es-sub{font-size:.72rem;color:var(--text3);line-height:1.6}
+.loading-cards{display:flex;flex-direction:column;gap:8px}
+.loading-card{background:var(--card);border:1px solid var(--border);border-radius:10px;height:130px;position:relative;overflow:hidden}
+.loading-card::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.04) 50%,transparent 100%);animation:shimmer 1.4s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* ═══════════ PRICING ═══════════ */
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.price-card.full{grid-column:1/-1}
+.pc-head{font-size:.7rem;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.pf{margin-bottom:10px}
+.pf:last-child{margin-bottom:0}
+.pf label{display:block;font-size:.65rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.pfc{
+  width:100%;background:var(--dark);border:1px solid var(--border);
+  color:var(--text);padding:9px 12px;border-radius:7px;font-size:.82rem;
+  outline:none;transition:border-color .15s
+}
+.pfc:focus{border-color:var(--teal3)}
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.save-btn{
+  width:100%;background:linear-gradient(135deg,var(--teal),var(--teal3));
+  color:#fff;padding:12px;border-radius:8px;font-size:.82rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .15s;margin-top:4px
+}
+.save-btn:disabled{opacity:.5;cursor:not-allowed}
+.save-btn .sp{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.save-toast{border-radius:8px;padding:10px 12px;font-size:.75rem;font-weight:600;margin-top:10px;display:none;line-height:1.5}
+.save-toast.ok{background:var(--green-bg);border:1px solid rgba(63,185,80,.3);color:var(--green)}
+.save-toast.bad{background:var(--red-bg);border:1px solid rgba(248,81,73,.3);color:var(--red)}
+
+/* ═══════════ USERS TAB ═══════════ */
+.user-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.user-av{width:38px;height:38px;border-radius:10px;background:var(--teal2);color:var(--teal3);font-size:1rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:.82rem;font-weight:800;color:var(--text)}
+.user-meta{font-size:.68rem;color:var(--text3);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+.user-bookings-badge{background:var(--blue-bg);color:var(--blue);border-radius:100px;font-size:.6rem;font-weight:800;padding:2px 8px}
+
+/* ═══════════ SECTION LABEL ═══════════ */
+.sec-lbl{font-size:.65rem;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ═══════════ NOTIFICATION TOAST ═══════════ */
+.notif{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--card2);border:1px solid var(--border2);border-radius:10px;
+  padding:10px 18px;font-size:.78rem;font-weight:700;color:var(--text);
+  opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;
+  white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4)
+}
+.notif.show{opacity:1}
+.notif.ok{border-color:rgba(63,185,80,.4);color:var(--green)}
+.notif.bad{border-color:rgba(248,81,73,.4);color:var(--red)}
+
+/* ═══════════ SCROLLED HEADER GLOW ═══════════ */
+.top-bar.scrolled{box-shadow:0 1px 0 var(--border)}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOCK SCREEN ═══ -->
+<div id="lockScreen">
+  <div class="lock-logo">
+    <div class="ll-ic">💧</div>
+    <h1>HYDRO<span style="color:var(--teal3)">SHINE</span> JAMMU</h1>
+    <p>Secure Admin Panel</p>
+  </div>
+  <div class="lock-box">
+    <h2>Admin Login</h2>
+    <div class="lf">
+      <label>Admin Key</label>
+      <input class="lfc" type="password" id="adminKeyInput" placeholder="Enter your secret admin key"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();doLogin()}">
+    </div>
+    <div class="lock-attempts" id="attemptsMsg"></div>
+    <div class="lock-cooldown" id="cooldownMsg"></div>
+    <button class="lock-btn" id="loginBtn" onclick="doLogin()">
+      <span id="loginTxt">🔐 Login</span>
+      <div class="sp" id="loginSp"></div>
+    </button>
+    <div class="lock-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dashboard">
+
+  <!-- Top Bar -->
+  <div class="top-bar" id="topBar">
+    <div class="tb-left">
+      <div class="tb-logo">
+        <div class="tb-logo-ic">💧</div>
+        <div class="tb-logo-text">HYDRO<span>SHINE</span></div>
+      </div>
+      <div class="tb-badge">ADMIN</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-time" id="liveClock"></div>
+      <button class="tb-logout" onclick="doLogout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- Main Tabs -->
+  <div class="main-tabs">
+    <div class="mt active" data-t="bookings" onclick="switchTab('bookings')">
+      📋 Bookings <span class="mt-badge" id="pendingCount">0</span>
+    </div>
+    <div class="mt" data-t="pricing" onclick="switchTab('pricing')">💰 Pricing</div>
+    <div class="mt" data-t="users" onclick="switchTab('users')">👥 Users</div>
+  </div>
+
+  <!-- ═══ BOOKINGS TAB ═══ -->
+  <div id="t-bookings" class="tab-content">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card sc-pending"><div class="sc-val" id="st-pending">0</div><div class="sc-lbl">Pending</div></div>
+      <div class="stat-card sc-confirmed"><div class="sc-val" id="st-confirmed">0</div><div class="sc-lbl">Confirmed</div></div>
+      <div class="stat-card sc-done"><div class="sc-val" id="st-done">0</div><div class="sc-lbl">Done</div></div>
+      <div class="stat-card sc-total"><div class="sc-val" id="st-total">0</div><div class="sc-lbl">Total</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="toolbar">
+      <div class="filter-chips">
+        <div class="fc-chip active" data-f="all" onclick="setFilter('all',this)">All</div>
+        <div class="fc-chip" data-f="pending" onclick="setFilter('pending',this)">⏳ Pending</div>
+        <div class="fc-chip" data-f="confirmed" onclick="setFilter('confirmed',this)">✅ Confirmed</div>
+        <div class="fc-chip" data-f="completed" onclick="setFilter('completed',this)">🎉 Done</div>
+        <div class="fc-chip" data-f="cancelled" onclick="setFilter('cancelled',this)">🚫 Cancelled</div>
+        <div class="fc-chip" data-f="rejected" onclick="setFilter('rejected',this)">❌ Rejected</div>
+      </div>
+    </div>
+    <div class="search-wrap" style="margin-bottom:12px">
+      <span class="search-ic">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search by name, phone, service, address…" oninput="renderBookings()">
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:.68rem;color:var(--text3);font-weight:600" id="bookingCount">Loading…</div>
+      <button onclick="loadBookings()" style="background:var(--card);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:7px;font-size:.68rem;font-weight:700">🔄 Refresh</button>
+    </div>
+    <div id="bkList"></div>
+  </div>
+
+  <!-- ═══ PRICING TAB ═══ -->
+  <div id="t-pricing" class="tab-content" style="display:none">
+    <div class="sec-lbl">🎉 Active Offer Banner</div>
+    <div class="pricing-grid">
+      <div class="price-card full">
+        <div class="pc-head">🎁 Offer Banner</div>
+        <div class="pf-row">
+          <div class="pf"><label>Offer Title</label><input class="pfc" id="p_offer_text" placeholder="Special Intro Offer"></div>
+          <div class="pf"><label>Offer Amount</label><input class="pfc" id="p_offer_amount" placeholder="₹100 OFF"></div>
+        </div>
+        <div class="pf"><label>Subtext</label><input class="pfc" id="p_offer_subtext" placeholder="for First 20 Customers!"></div>
+      </div>
+    </div>
+    <div class="sec-lbl" style="margin-top:4px">🚗 Service Prices</div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="pc-head">🚙 Hatchback</div>
+        <div class="pf-row">
+          <div class="pf"><label>Min ₹</label><input class="pfc" type="number" id="p_hatchback_min" placeholder="299"></div>
+          <div class="pf"><label>Max ₹</label><input class="pfc" type="number" id="p_hatchback_max" placeholder="399"></div>
+        </div>
+      </div>
+      <div class="price-card">
+        <div class="pc-head">🚗 Sedan</div>
+        <div class="pf-row">
+          <div class="pf"><label>Min ₹</label><input class="pfc" type="number" id="p_sedan_min" placeholder="399"></div>
+          <div class="pf"><label>Max ₹</label><input class="pfc" type="number" id="p_sedan_max" placeholder="499"></div>
+        </div>
+      </div>
+      <div class="price-card">
+        <div class="pc-head">🚐 SUV / MUV</div>
+        <div class="pf-row">
+          <div class="pf"><label>Min ₹</label><input class="pfc" type="number" id="p_suv_min" placeholder="499"></div>
+          <div class="pf"><label>Max ₹</label><input class="pfc" type="number" id="p_suv_max" placeholder="699"></div>
+        </div>
+      </div>
+      <div class="price-card">
+        <div class="pc-head">🏍️ Bike</div>
+        <div class="pf"><label>Price ₹</label><input class="pfc" type="number" id="p_bike_price" placeholder="250"></div>
+      </div>
+      <div class="price-card full">
+        <div class="pc-head">✨ Premium Detailing</div>
+        <div class="pf"><label>Starting Price ₹ (shown as ₹999+)</label><input class="pfc" type="number" id="p_premium_price" placeholder="999"></div>
+      </div>
+    </div>
+    <div class="sec-lbl">➕ Add-On Prices</div>
+    <div class="pricing-grid">
+      <div class="price-card"><div class="pc-head">🧹 Interior Vacuum</div><div class="pf"><label>Price ₹</label><input class="pfc" type="number" id="p_addon_vacuum" placeholder="199"></div></div>
+      <div class="price-card"><div class="pc-head">✨ Dashboard Polish</div><div class="pf"><label>Price ₹</label><input class="pfc" type="number" id="p_addon_dashboard" placeholder="99"></div></div>
+      <div class="price-card"><div class="pc-head">🔘 Tyre Polish</div><div class="pf"><label>Price ₹</label><input class="pfc" type="number" id="p_addon_tyre" placeholder="99"></div></div>
+      <div class="price-card"><div class="pc-head">🪟 Glass Cleaning</div><div class="pf"><label>Price ₹</label><input class="pfc" type="number" id="p_addon_glass" placeholder="99"></div></div>
+      <div class="price-card full"><div class="pc-head">🧽 Interior Deep Clean</div><div class="pf"><label>Price ₹ (shown as ₹499+)</label><input class="pfc" type="number" id="p_addon_deepclean" placeholder="499"></div></div>
+    </div>
+    <div class="sec-lbl">🖼️ Hero Slider</div>
+    <div class="pricing-grid">
+      <div class="price-card full">
+        <div class="pc-head">Slide 1 — Exterior Wash</div>
+        <div class="pf"><label>Title</label><input class="pfc" id="p_slide1_title"></div>
+        <div class="pf"><label>Subtitle</label><input class="pfc" id="p_slide1_sub"></div>
+        <div class="pf-row">
+          <div class="pf"><label>New Price ₹</label><input class="pfc" type="number" id="p_slide1_new"></div>
+          <div class="pf"><label>Old Price ₹</label><input class="pfc" type="number" id="p_slide1_old"></div>
+        </div>
+      </div>
+      <div class="price-card full">
+        <div class="pc-head">Slide 2 — Steam Wash</div>
+        <div class="pf"><label>Title</label><input class="pfc" id="p_slide2_title"></div>
+        <div class="pf"><label>Subtitle</label><input class="pfc" id="p_slide2_sub"></div>
+        <div class="pf-row">
+          <div class="pf"><label>New Price ₹</label><input class="pfc" type="number" id="p_slide2_new"></div>
+          <div class="pf"><label>Old Price ₹</label><input class="pfc" type="number" id="p_slide2_old"></div>
+        </div>
+      </div>
+      <div class="price-card full">
+        <div class="pc-head">Slide 3 — Bike Wash</div>
+        <div class="pf"><label>Title</label><input class="pfc" id="p_slide3_title"></div>
+        <div class="pf"><label>Subtitle</label><input class="pfc" id="p_slide3_sub"></div>
+        <div class="pf-row">
+          <div class="pf"><label>New Price ₹</label><input class="pfc" type="number" id="p_slide3_new"></div>
+          <div class="pf"><label>Old Price ₹</label><input class="pfc" type="number" id="p_slide3_old"></div>
+        </div>
+      </div>
+    </div>
+    <button class="save-btn" id="savePricingBtn" onclick="savePricing()">
+      <span id="savePricingTxt">💾 Save All Pricing & Offers</span>
+      <div class="sp" id="savePricingSp"></div>
+    </button>
+    <div class="save-toast" id="pricingToast"></div>
+  </div>
+
+  <!-- ═══ USERS TAB ═══ -->
+  <div id="t-users" class="tab-content" style="display:none">
+    <div id="usersList"></div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="notif" id="notif"></div>
+
+<script>
+// ─────────────── SECURITY CONFIG ───────────────
+const MAX_ATTEMPTS = 5;       // max wrong attempts before lockout
+const LOCKOUT_MINS = 15;      // lockout duration in minutes
+const SESSION_HOURS = 8;      // auto-logout after hours
+
+let adminKey = '';
+let allBookings = [];
+let allUsers = [];
+let currentFilter = 'all';
+let attemptCount = 0;
+let lockedUntil = 0;
+
+const BACKEND_URL = 'https://doorstepswash-api.amitkumar300ee.workers.dev';
+
+// ─────────────── SECURITY: ATTEMPT TRACKING ───────────────
+function loadAttemptData(){
+  try{
+    const d = JSON.parse(sessionStorage.getItem('hs_admin_sec') || '{}');
+    attemptCount = d.attempts || 0;
+    lockedUntil = d.lockedUntil || 0;
+  }catch(e){}
+}
+function saveAttemptData(){
+  try{ sessionStorage.setItem('hs_admin_sec', JSON.stringify({attempts:attemptCount, lockedUntil})); }catch(e){}
+}
+function isLockedOut(){
+  return Date.now() < lockedUntil;
+}
+function recordFailedAttempt(){
+  attemptCount++;
+  if(attemptCount >= MAX_ATTEMPTS){
+    lockedUntil = Date.now() + LOCKOUT_MINS * 60 * 1000;
+  }
+  saveAttemptData();
+  updateAttemptsUI();
+}
+function clearAttempts(){
+  attemptCount = 0; lockedUntil = 0;
+  saveAttemptData();
+}
+function updateAttemptsUI(){
+  const el = document.getElementById('attemptsMsg');
+  const remaining = MAX_ATTEMPTS - attemptCount;
+  if(attemptCount === 0){ el.textContent = ''; el.className = 'lock-attempts'; return; }
+  if(isLockedOut()){ el.className = 'lock-attempts danger'; return; }
+  el.className = `lock-attempts ${remaining<=2?'danger':remaining<=3?'warn':''}`;
+  el.textContent = `${remaining} attempt${remaining!==1?'s':''} remaining`;
+}
+function checkCooldown(){
+  const el = document.getElementById('cooldownMsg');
+  const btn = document.getElementById('loginBtn');
+  if(isLockedOut()){
+    const secsLeft = Math.ceil((lockedUntil - Date.now()) / 1000);
+    const mins = Math.floor(secsLeft/60), secs = secsLeft%60;
+    el.style.display='block';
+    el.textContent = `🔒 Too many failed attempts.\nTry again in ${mins}m ${secs}s.`;
+    btn.disabled = true;
+    if(secsLeft > 0) setTimeout(checkCooldown, 1000);
+    else { el.style.display='none'; btn.disabled=false; updateAttemptsUI(); }
+  } else {
+    el.style.display='none';
+    btn.disabled=false;
+  }
+}
+
+// ─────────────── LOGIN ───────────────
+async function doLogin(){
+  loadAttemptData();
+  if(isLockedOut()){ checkCooldown(); return; }
+
+  const key = document.getElementById('adminKeyInput').value.trim();
+  const errEl = document.getElementById('loginError');
+  errEl.style.display='none';
+
+  if(!key){ showLoginError('Please enter your admin key.'); return; }
+
+  if(!BACKEND_URL){
+    showLoginError('BACKEND_URL is not set in admin.html. Open the file and add your Worker URL.');
+    return;
+  }
+
+  const btn = document.getElementById('loginBtn');
+  const txt = document.getElementById('loginTxt');
+  const sp  = document.getElementById('loginSp');
+  btn.disabled=true; txt.textContent='Verifying…'; sp.style.display='block';
+
+  try{
+    const res = await fetch(BACKEND_URL+'/api/admin/bookings',{
+      headers:{'x-admin-key':key}
+    });
+    const j = await res.json();
+    if(j.success){
+      adminKey = key;
+      clearAttempts();
+      // Save session with expiry
+      const exp = Date.now() + SESSION_HOURS * 60 * 60 * 1000;
+      try{ sessionStorage.setItem('hs_adm', JSON.stringify({key, exp})); }catch(e){}
+      allBookings = j.bookings || [];
+      document.getElementById('lockScreen').style.display='none';
+      document.getElementById('dashboard').style.display='block';
+      initDashboard();
+    } else {
+      recordFailedAttempt();
+      const box = document.getElementById('adminKeyInput').parentElement;
+      box.classList.add('shake');
+      setTimeout(()=>box.classList.remove('shake'), 300);
+      if(isLockedOut()){
+        showLoginError(`Too many failed attempts. Locked for ${LOCKOUT_MINS} minutes.`);
+        checkCooldown();
+      } else {
+        showLoginError('Invalid admin key. Check and try again.');
+      }
+    }
+  }catch(e){
+    showLoginError('Connection error. Make sure BACKEND_URL is correct and you have internet.');
+  }
+  btn.disabled=false; txt.textContent='🔐 Login'; sp.style.display='none';
+  updateAttemptsUI();
+}
+
+function showLoginError(msg){
+  const el = document.getElementById('loginError');
+  el.textContent = msg; el.style.display='block';
+}
+
+function doLogout(){
+  adminKey='';
+  try{ sessionStorage.removeItem('hs_adm'); }catch(e){}
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('lockScreen').style.display='flex';
+  document.getElementById('adminKeyInput').value='';
+  document.getElementById('loginError').style.display='none';
+}
+
+// ─────────────── SESSION CHECK ───────────────
+function tryAutoLogin(){
+  try{
+    const d = JSON.parse(sessionStorage.getItem('hs_adm') || 'null');
+    if(!d) return;
+    if(Date.now() > d.exp){ sessionStorage.removeItem('hs_adm'); return; }
+    adminKey = d.key;
+    document.getElementById('lockScreen').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    initDashboard();
+    loadBookings();
+  }catch(e){}
+}
+
+// ─────────────── DASHBOARD INIT ───────────────
+function initDashboard(){
+  updateStats();
+  renderBookings();
+  startClock();
+  loadBookings(); // fresh fetch in background
+}
+
+function startClock(){
+  function tick(){
+    const now = new Date();
+    document.getElementById('liveClock').textContent =
+      now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    // Auto-logout check
+    try{
+      const d = JSON.parse(sessionStorage.getItem('hs_adm') || 'null');
+      if(d && Date.now() > d.exp) doLogout();
+    }catch(e){}
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ─────────────── TABS ───────────────
+function switchTab(t){
+  document.querySelectorAll('.mt').forEach(el=>el.classList.toggle('active',el.dataset.t===t));
+  ['bookings','pricing','users'].forEach(id=>{
+    document.getElementById('t-'+id).style.display = id===t ? 'block' : 'none';
+  });
+  if(t==='pricing') loadPricingAdmin();
+  if(t==='users') loadUsers();
+}
+
+// ─────────────── BOOKINGS ───────────────
+async function loadBookings(){
+  const refreshBtn = document.querySelector('[onclick="loadBookings()"]');
+  if(refreshBtn) refreshBtn.textContent = '⏳ Loading…';
+  try{
+    const res = await fetch(BACKEND_URL+'/api/admin/bookings',{headers:{'x-admin-key':adminKey}});
+    if(res.status===401){ doLogout(); return; }
+    const j = await res.json();
+    if(j.success){
+      allBookings = j.bookings||[];
+      updateStats();
+      renderBookings();
+    }
+  }catch(e){}
+  if(refreshBtn) refreshBtn.textContent='🔄 Refresh';
+}
+
+function updateStats(){
+  const p = allBookings.filter(b=>b.status==='pending').length;
+  const c = allBookings.filter(b=>b.status==='confirmed').length;
+  const d = allBookings.filter(b=>b.status==='completed').length;
+  document.getElementById('st-pending').textContent = p;
+  document.getElementById('st-confirmed').textContent = c;
+  document.getElementById('st-done').textContent = d;
+  document.getElementById('st-total').textContent = allBookings.length;
+  document.getElementById('pendingCount').textContent = p;
+}
+
+function setFilter(f,el){
+  currentFilter=f;
+  document.querySelectorAll('.fc-chip').forEach(c=>c.classList.toggle('active',c===el));
+  renderBookings();
+}
+
+const STATUS = {
+  pending:  {pill:'sp-pending',  label:'Pending'},
+  confirmed:{pill:'sp-confirmed',label:'Confirmed'},
+  completed:{pill:'sp-completed',label:'Done'},
+  cancelled:{pill:'sp-cancelled',label:'Cancelled'},
+  rejected: {pill:'sp-rejected', label:'Rejected'},
+};
+
+function renderBookings(){
+  const list = document.getElementById('bkList');
+  const q = (document.getElementById('searchInput')?.value||'').toLowerCase().trim();
+  let bks = allBookings;
+  if(currentFilter!=='all') bks=bks.filter(b=>b.status===currentFilter);
+  if(q) bks=bks.filter(b=>
+    (b.name||'').toLowerCase().includes(q)||
+    (b.phone||'').includes(q)||
+    (b.service||'').toLowerCase().includes(q)||
+    (b.address||'').toLowerCase().includes(q)
+  );
+  document.getElementById('bookingCount').textContent = `${bks.length} booking${bks.length!==1?'s':''} shown`;
+  if(!bks.length){
+    list.innerHTML=`<div class="empty-state"><div class="es-icon">📭</div><div class="es-title">No bookings found</div><div class="es-sub">Try a different filter or search term.</div></div>`;
+    return;
+  }
+  list.innerHTML = `<div class="bk-list">${bks.map(b=>bookingCard(b)).join('')}</div>`;
+}
+
+function bookingCard(b){
+  const st = STATUS[b.status]||STATUS.pending;
+  const ph10 = (b.phone||'').replace(/[^0-9]/g,'').slice(-10);
+  const dt = b.created_at ? new Date(b.created_at).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+  const userBadge = b.user_id
+    ? `<span class="user-chip reg">👤 User #${b.user_id}</span>`
+    : `<span class="user-chip guest">Guest Booking</span>`;
+
+  let actions = '';
+  if(b.status==='pending'){
+    actions+=`<button class="bk-btn btn-ok" onclick="bkAction(${b.id},'confirm')">✅ Confirm</button>`;
+    actions+=`<button class="bk-btn btn-rej" onclick="bkAction(${b.id},'reject')">❌ Reject</button>`;
+  }
+  if(b.status==='confirmed'){
+    actions+=`<button class="bk-btn btn-done" onclick="bkAction(${b.id},'complete')">🎉 Mark Done</button>`;
+  }
+  actions+=`<button class="bk-btn btn-call" onclick="location.href='tel:${b.phone}'">📞 Call</button>`;
+  actions+=`<button class="bk-btn btn-wa" onclick="window.open('https://wa.me/91${ph10}','_blank')">💬 WA</button>`;
+
+  return `<div class="bk-card" id="bk-${b.id}">
+    <div class="bk-header">
+      <div class="bk-info">
+        <div class="bk-name">${b.name} ${userBadge}</div>
+        <div class="bk-meta">
+          <span>#${b.id}</span>
+          ${dt?`<span>🕐 ${dt}</span>`:''}
+        </div>
+      </div>
+      <div class="status-pill ${st.pill}">${st.label}</div>
+    </div>
+    <div class="bk-body">
+      <div class="bk-rows">
+        <div class="bk-row"><span class="ri">🛠️</span>${b.service}</div>
+        <div class="bk-row"><span class="ri">📞</span>${b.phone}</div>
+        <div class="bk-row"><span class="ri">📅</span>${b.date} · ${b.time}</div>
+        ${b.addon&&b.addon!=='None'?`<div class="bk-row"><span class="ri">➕</span>${b.addon}</div>`:''}
+        <div class="bk-row full"><span class="ri">📍</span>${b.address}</div>
+        ${b.notes&&b.notes!=='None'?`<div class="bk-row full"><span class="ri">📝</span>${b.notes}</div>`:''}
+      </div>
+      <div class="bk-actions">${actions}</div>
+    </div>
+  </div>`;
+}
+
+async function bkAction(id, action){
+  const card = document.getElementById('bk-'+id);
+  if(card) card.style.opacity='0.5';
+  try{
+    const res = await fetch(`${BACKEND_URL}/api/admin/booking/${id}/${action}`,{
+      method:'POST',headers:{'x-admin-key':adminKey}
+    });
+    if(res.status===401){ doLogout(); return; }
+    const j = await res.json();
+    if(j.success){
+      showNotif('✅ Updated!','ok');
+      await loadBookings();
+    } else {
+      showNotif('❌ '+j.message,'bad');
+      if(card) card.style.opacity='1';
+    }
+  }catch(e){
+    showNotif('❌ Connection error','bad');
+    if(card) card.style.opacity='1';
+  }
+}
+
+// ─────────────── PRICING ───────────────
+async function loadPricingAdmin(){
+  if(!BACKEND_URL) return;
+  try{
+    const res = await fetch(BACKEND_URL+'/api/settings/pricing');
+    const j = await res.json();
+    if(j.success) fillPricing(j.pricing);
+  }catch(e){}
+}
+function sv(id,v){ const e=document.getElementById(id); if(e&&v!==undefined) e.value=v; }
+function gv(id){ return (document.getElementById(id)?.value||'').trim(); }
+function gn(id){ const v=document.getElementById(id)?.value; return v===''?0:Number(v); }
+function fillPricing(p){
+  const s=p.services||{},a=p.addons||{},sl=p.slides||{};
+  sv('p_offer_text',p.offer_text); sv('p_offer_amount',p.offer_amount); sv('p_offer_subtext',p.offer_subtext);
+  if(s.hatchback){sv('p_hatchback_min',s.hatchback.price_min);sv('p_hatchback_max',s.hatchback.price_max);}
+  if(s.sedan){sv('p_sedan_min',s.sedan.price_min);sv('p_sedan_max',s.sedan.price_max);}
+  if(s.suv){sv('p_suv_min',s.suv.price_min);sv('p_suv_max',s.suv.price_max);}
+  if(s.bike)sv('p_bike_price',s.bike.price);
+  if(s.premium)sv('p_premium_price',s.premium.price);
+  if(a.interior_vacuum)sv('p_addon_vacuum',a.interior_vacuum.price);
+  if(a.dashboard_polish)sv('p_addon_dashboard',a.dashboard_polish.price);
+  if(a.tyre_polish)sv('p_addon_tyre',a.tyre_polish.price);
+  if(a.glass_cleaning)sv('p_addon_glass',a.glass_cleaning.price);
+  if(a.interior_deep_clean)sv('p_addon_deepclean',a.interior_deep_clean.price);
+  if(sl.slide1){sv('p_slide1_title',sl.slide1.title);sv('p_slide1_sub',sl.slide1.subtitle);sv('p_slide1_new',sl.slide1.price_new);sv('p_slide1_old',sl.slide1.price_old);}
+  if(sl.slide2){sv('p_slide2_title',sl.slide2.title);sv('p_slide2_sub',sl.slide2.subtitle);sv('p_slide2_new',sl.slide2.price_new);sv('p_slide2_old',sl.slide2.price_old);}
+  if(sl.slide3){sv('p_slide3_title',sl.slide3.title);sv('p_slide3_sub',sl.slide3.subtitle);sv('p_slide3_new',sl.slide3.price_new);sv('p_slide3_old',sl.slide3.price_old);}
+}
+async function savePricing(){
+  const payload={
+    offer_text:gv('p_offer_text'),offer_amount:gv('p_offer_amount'),offer_subtext:gv('p_offer_subtext'),
+    services:{
+      hatchback:{label:'Hatchback Wash',price_min:gn('p_hatchback_min'),price_max:gn('p_hatchback_max')},
+      sedan:{label:'Sedan Wash',price_min:gn('p_sedan_min'),price_max:gn('p_sedan_max')},
+      suv:{label:'SUV / MUV Wash',price_min:gn('p_suv_min'),price_max:gn('p_suv_max')},
+      bike:{label:'Bike / Scooter Wash',price:gn('p_bike_price')},
+      premium:{label:'Premium Detailing',price:gn('p_premium_price')},
+    },
+    addons:{
+      interior_vacuum:{label:'Interior Vacuum',price:gn('p_addon_vacuum')},
+      dashboard_polish:{label:'Dashboard Polish',price:gn('p_addon_dashboard')},
+      tyre_polish:{label:'Tyre Polish',price:gn('p_addon_tyre')},
+      glass_cleaning:{label:'Glass Cleaning',price:gn('p_addon_glass')},
+      interior_deep_clean:{label:'Interior Deep Clean',price:gn('p_addon_deepclean')},
+    },
+    slides:{
+      slide1:{title:gv('p_slide1_title'),subtitle:gv('p_slide1_sub'),price_new:gn('p_slide1_new'),price_old:gn('p_slide1_old')},
+      slide2:{title:gv('p_slide2_title'),subtitle:gv('p_slide2_sub'),price_new:gn('p_slide2_new'),price_old:gn('p_slide2_old')},
+      slide3:{title:gv('p_slide3_title'),subtitle:gv('p_slide3_sub'),price_new:gn('p_slide3_new'),price_old:gn('p_slide3_old')},
+    },
+  };
+  const btn=document.getElementById('savePricingBtn'),txt=document.getElementById('savePricingTxt'),sp=document.getElementById('savePricingSp');
+  btn.disabled=true; txt.textContent='Saving…'; sp.style.display='block';
+  try{
+    const res=await fetch(BACKEND_URL+'/api/admin/settings/pricing',{
+      method:'POST',headers:{'Content-Type':'application/json','x-admin-key':adminKey},body:JSON.stringify(payload)
+    });
+    if(res.status===401){doLogout();return;}
+    const j=await res.json();
+    const t=document.getElementById('pricingToast');
+    t.className='save-toast '+(j.success?'ok':'bad');
+    t.textContent=j.success?'✅ Pricing & offers saved successfully!':'❌ '+(j.message||'Save failed');
+    t.style.display='block';
+    setTimeout(()=>t.style.display='none',5000);
+  }catch(e){
+    const t=document.getElementById('pricingToast');
+    t.className='save-toast bad'; t.textContent='❌ Connection error'; t.style.display='block';
+  }
+  btn.disabled=false; txt.textContent='💾 Save All Pricing & Offers'; sp.style.display='none';
+}
+
+// ─────────────── USERS ───────────────
+async function loadUsers(){
+  const list = document.getElementById('usersList');
+  list.innerHTML='<div class="loading-cards"><div class="loading-card"></div><div class="loading-card"></div></div>';
+  try{
+    const res = await fetch(BACKEND_URL+'/api/admin/users',{headers:{'x-admin-key':adminKey}});
+    if(res.status===401){doLogout();return;}
+    const j = await res.json();
+    if(j.success){
+      allUsers = j.users||[];
+      renderUsers();
+    } else {
+      list.innerHTML=`<div class="empty-state"><div class="es-icon">⚙️</div><div class="es-title">Users endpoint not available</div><div class="es-sub">Add /api/admin/users to your worker.js to view registered users.</div></div>`;
+    }
+  }catch(e){
+    list.innerHTML=`<div class="empty-state"><div class="es-icon">❌</div><div class="es-title">Failed to load users</div><div class="es-sub">Check your connection and try again.</div></div>`;
+  }
+}
+function renderUsers(){
+  const list = document.getElementById('usersList');
+  if(!allUsers.length){
+    list.innerHTML=`<div class="empty-state"><div class="es-icon">👥</div><div class="es-title">No registered users yet</div><div class="es-sub">Users who create accounts will appear here.</div></div>`;
+    return;
+  }
+  list.innerHTML = allUsers.map(u=>{
+    const initial = (u.name||'U').charAt(0).toUpperCase();
+    const bkCount = allBookings.filter(b=>b.user_id==u.id).length;
+    return `<div class="user-card">
+      <div class="user-av">${initial}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-meta">
+          <span>📞 ${u.phone}</span>
+          <span>✉️ ${u.email||'—'}</span>
+        </div>
+      </div>
+      <span class="user-bookings-badge">${bkCount} booking${bkCount!==1?'s':''}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────── TOAST ───────────────
+function showNotif(msg,type='ok'){
+  const el=document.getElementById('notif');
+  el.textContent=msg; el.className='notif show '+(type||'');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ─────────────── SCROLL HEADER SHADOW ───────────────
+window.addEventListener('scroll',()=>{
+  document.getElementById('topBar')?.classList.toggle('scrolled', window.scrollY>4);
+},{ passive:true });
+
+// ─────────────── INIT ───────────────
+window.HS_PAGE='admin';
+loadAttemptData();
+updateAttemptsUI();
+checkCooldown();
+tryAutoLogin();
+</script>
+</body>
+</html>

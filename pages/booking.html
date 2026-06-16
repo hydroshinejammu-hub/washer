@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Book a Wash — DoorstepsWash Jammu</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+.method-row{display:flex;gap:10px;margin-bottom:16px}
+.method-opt{flex:1;position:relative}
+.method-opt input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0}
+.method-card{border:1.5px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center;transition:all .2s;background:#F8FAFB}
+.method-opt input:checked + .method-card{border-color:var(--teal);background:rgba(0,107,94,.06)}
+.method-card .mc-ico{font-size:1.3rem;margin-bottom:4px}
+.method-card .mc-lbl{font-size:.75rem;font-weight:700}
+.method-card .mc-sub{font-size:.65rem;color:var(--gray);margin-top:2px}
+.method-opt input:checked + .method-card .mc-lbl{color:var(--teal)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <button class="back-btn" onclick="location.href='index.html'">←</button>
+  <div class="header-logo desktop-only-logo" style="display:none"><div class="logo-ic">💧</div>DOORSTEPS<span class="shine">WASH</span> <span style="font-size:.65em;font-weight:600;opacity:.85">JAMMU</span></div>
+  <div class="header-title">Book a Wash</div>
+  <a href="tel:9469793349" class="call-btn">📞 Call</a>
+</header>
+
+<!-- BOOKING FORM -->
+<div class="book-box rv" id="booking" style="margin-top:16px">
+  <div class="sec-ey">Book Online</div>
+  <h2>Schedule Your Wash 🚗</h2>
+
+  <div class="fg">
+    <label>Booking Method</label>
+    <div class="method-row">
+      <label class="method-opt">
+        <input type="radio" name="bookmethod" value="backend" checked>
+        <div class="method-card">
+          <div class="mc-ico">📋</div>
+          <div class="mc-lbl">Book &amp; Track</div>
+          <div class="mc-sub">Status updates here</div>
+        </div>
+      </label>
+      <label class="method-opt">
+        <input type="radio" name="bookmethod" value="whatsapp">
+        <div class="method-card">
+          <div class="mc-ico">💬</div>
+          <div class="mc-lbl">WhatsApp</div>
+          <div class="mc-sub">Direct message</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div class="fg"><label>Full Name *</label><input class="fc" type="text" id="f_name" placeholder="e.g. Rahul Sharma" autocomplete="name"><span class="ferr" id="e_name">Please enter your name</span></div>
+  <div class="fg"><label>Mobile Number *</label><input class="fc" type="tel" id="f_phone" placeholder="+91 98765 43210" maxlength="15"><span class="ferr" id="e_phone">Enter a valid number</span></div>
+  <div class="fg"><label>Service *</label>
+    <select class="fc" id="f_service">
+      <option value="">— Choose service —</option>
+      <option value="Hatchback Wash – ₹299 to ₹399">Hatchback Wash – ₹299 to ₹399</option>
+      <option value="Sedan Wash – ₹399 to ₹499">Sedan Wash – ₹399 to ₹499</option>
+      <option value="SUV / MUV Wash – ₹499 to ₹699">SUV / MUV Wash – ₹499 to ₹699</option>
+      <option value="Bike / Scooter Wash – ₹250">Bike / Scooter Wash – ₹250</option>
+      <option value="Premium Detailing – ₹999+">Premium Detailing – ₹999+</option>
+    </select>
+    <span class="ferr" id="e_service">Please select a service</span>
+  </div>
+  <div class="frow2">
+    <div class="fg"><label>Date *</label><input class="fc" type="date" id="f_date"><span class="ferr" id="e_date">Select date</span></div>
+    <div class="fg"><label>Time *</label>
+      <select class="fc" id="f_time"><option value="">— Slot —</option><option>8–9 AM</option><option>9–10 AM</option><option>10–11 AM</option><option>11–12 PM</option><option>2–3 PM</option><option>3–4 PM</option><option>4–5 PM</option><option>5–6 PM</option></select>
+      <span class="ferr" id="e_time">Select slot</span>
+    </div>
+  </div>
+  <div class="fg"><label>Add-On (optional)</label>
+    <select class="fc" id="f_addon">
+      <option value="None">No add-ons</option>
+      <option value="Interior Vacuum – ₹199">Interior Vacuum – ₹199</option>
+      <option value="Dashboard Polish – ₹99">Dashboard Polish – ₹99</option>
+      <option value="Tyre Polish – ₹99">Tyre Polish – ₹99</option>
+      <option value="Interior Deep Clean – ₹499+">Interior Deep Clean – ₹499+</option>
+    </select>
+  </div>
+  <div class="fg"><label>Your Address *</label><textarea class="fc" id="f_address" placeholder="House/flat no., street, mohalla, landmark, Jammu..."></textarea><span class="ferr" id="e_address">Please enter your address</span></div>
+  <div class="fg"><label>Special Instructions (optional)</label><textarea class="fc" id="f_notes" placeholder="e.g. heavy mud, pet hair, park at gate 2..." style="min-height:64px"></textarea></div>
+
+  <button class="sub-btn" id="subBtn" onclick="bookNow()"><span id="subTxt">🚗 Confirm Booking</span><div class="sp" id="subSp"></div></button>
+  <div class="toast" id="toastMsg"></div>
+
+  <div id="loginHint" style="margin-top:14px;padding:12px 14px;background:rgba(0,107,94,.06);border:1px solid rgba(0,107,94,.15);border-radius:10px;font-size:.78rem;color:var(--gray);text-align:center;display:none">
+    💡 <a href="account.html" style="color:var(--teal);font-weight:700">Login or Register</a> to track your booking status and view history anytime.
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bn-item" id="nav-home" onclick="location.href='index.html'"><div class="bn-ic">🏠</div><div class="bn-lbl">Home</div></div>
+  <div class="bn-item" id="nav-services" onclick="location.href='index.html#services'"><div class="bn-ic">🚗</div><div class="bn-lbl">Services</div></div>
+  <div class="bn-item active" id="nav-bookings" onclick="location.href='my-bookings.html'"><div class="bn-ic">📋</div><div class="bn-lbl">My Bookings</div></div>
+  <div class="bn-item" id="nav-call" onclick="location.href='tel:9469793349'"><div class="bn-ic">📞</div><div class="bn-lbl">Call</div></div>
+  <div class="bn-item" id="nav-account" onclick="location.href='account.html'"><div class="bn-ic">👤</div><div class="bn-lbl">Account</div></div>
+</nav>
+
+<script src="images.js"></script>
+<script>window.HS_PAGE="booking";</script>
+<script src="app.js"></script>
+<script>
+  prefillBookingForm();
+  if (!isLoggedIn()) document.getElementById('loginHint').style.display = 'block';
+</script>
+</body>
+</html>

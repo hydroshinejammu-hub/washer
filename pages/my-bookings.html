@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>My Bookings — DoorstepsWash Jammu</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <button class="back-btn" onclick="location.href='index.html'">←</button>
+  <div class="header-logo desktop-only-logo" style="display:none"><div class="logo-ic">💧</div>DOORSTEPS<span class="shine">WASH</span> <span style="font-size:.65em;font-weight:600;opacity:.85">JAMMU</span></div>
+  <div class="header-title">My Bookings</div>
+  <a href="tel:9469793349" class="call-btn">📞 Call</a>
+</header>
+
+<!-- LOGGED OUT STATE -->
+<div id="loggedOutView" style="display:none">
+  <div class="empty-state rv" style="margin-top:40px">
+    <div class="es-icon">🔒</div>
+    <h3>Login to View Bookings</h3>
+    <p>Track your booking status, history, and cancel anytime by logging into your account.</p>
+    <a href="account.html" class="sub-btn" style="display:inline-flex;width:auto;padding:12px 28px;text-decoration:none">🔓 Login / Register</a>
+  </div>
+</div>
+
+<!-- LOADING STATE -->
+<div id="loadingView" style="display:none;text-align:center;padding:60px 20px;color:var(--gray);font-size:.85rem">
+  Loading your bookings...
+</div>
+
+<!-- EMPTY STATE -->
+<div id="emptyView" style="display:none">
+  <div class="empty-state rv" style="margin-top:40px">
+    <div class="es-icon">📋</div>
+    <h3>No Bookings Yet</h3>
+    <p>You haven't made any bookings. Book your first doorstep car wash now!</p>
+    <a href="booking.html" class="sub-btn" style="display:inline-flex;width:auto;padding:12px 28px;text-decoration:none">🚗 Book a Wash</a>
+  </div>
+</div>
+
+<!-- BOOKINGS LIST -->
+<div class="sec rv" id="bookingsView" style="display:none">
+  <div class="sec-head"><h2>Your Bookings</h2></div>
+  <div id="bookingsList"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bn-item" id="nav-home" onclick="location.href='index.html'"><div class="bn-ic">🏠</div><div class="bn-lbl">Home</div></div>
+  <div class="bn-item" id="nav-services" onclick="location.href='index.html#services'"><div class="bn-ic">🚗</div><div class="bn-lbl">Services</div></div>
+  <div class="bn-item active" id="nav-bookings" onclick="location.href='my-bookings.html'"><div class="bn-ic">📋</div><div class="bn-lbl">My Bookings</div></div>
+  <div class="bn-item" id="nav-call" onclick="location.href='tel:9469793349'"><div class="bn-ic">📞</div><div class="bn-lbl">Call</div></div>
+  <div class="bn-item" id="nav-account" onclick="location.href='account.html'"><div class="bn-ic">👤</div><div class="bn-lbl">Account</div></div>
+</nav>
+
+<script src="images.js"></script>
+<script>window.HS_PAGE="bookings";</script>
+<script src="app.js"></script>
+<script>
+const STATUS_LABELS = {
+  pending: { label: '⏳ Pending', cls: 'pending' },
+  confirmed: { label: '✅ Confirmed', cls: 'confirmed' },
+  cancelled: { label: '🚫 Cancelled', cls: 'cancelled' },
+  rejected: { label: '❌ Rejected', cls: 'rejected' },
+  completed: { label: '🎉 Completed', cls: 'completed' },
+};
+
+function renderBookings(bookings){
+  const list = document.getElementById('bookingsList');
+  if(bookings.length === 0){
+    document.getElementById('emptyView').style.display = 'block';
+    document.getElementById('bookingsView').style.display = 'none';
+    return;
+  }
+  document.getElementById('bookingsView').style.display = 'block';
+  list.innerHTML = bookings.map(b => {
+    const st = STATUS_LABELS[b.status] || STATUS_LABELS.pending;
+    const canCancel = (b.status === 'pending' || b.status === 'confirmed');
+    return `
+      <div class="bk-card">
+        <div class="bk-top">
+          <div class="bk-service">${b.service}</div>
+          <div class="bk-status ${st.cls}">${st.label}</div>
+        </div>
+        <div class="bk-row"><span class="bi">📅</span> ${b.date} · ${b.time}</div>
+        <div class="bk-row"><span class="bi">📍</span> ${b.address}</div>
+        ${b.addon && b.addon !== 'None' ? `<div class="bk-row"><span class="bi">➕</span> ${b.addon}</div>` : ''}
+        ${b.notes && b.notes !== 'None' ? `<div class="bk-row"><span class="bi">📝</span> ${b.notes}</div>` : ''}
+        <div class="bk-row"><span class="bi">🕐</span> Booked on ${new Date(b.created_at).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</div>
+        ${canCancel ? `
+          <div class="bk-actions">
+            <button class="bk-cancel-btn" onclick="cancelBooking(${b.id}, this)">🚫 Cancel Booking</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function cancelBooking(id, btn){
+  if(!confirm('Are you sure you want to cancel this booking?')) return;
+  btn.disabled = true;
+  btn.textContent = 'Cancelling...';
+  try{
+    const j = await apiPost(`/api/booking/${id}/cancel`, {}, true);
+    if(j.success){
+      loadBookings();
+    } else {
+      alert(j.message || 'Could not cancel booking');
+      btn.disabled = false;
+      btn.textContent = '🚫 Cancel Booking';
+    }
+  }catch(e){
+    alert('Connection error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = '🚫 Cancel Booking';
+  }
+}
+
+async function loadBookings(){
+  document.getElementById('loadingView').style.display = 'block';
+  document.getElementById('bookingsView').style.display = 'none';
+  document.getElementById('emptyView').style.display = 'none';
+
+  if(!BACKEND_URL){
+    document.getElementById('loadingView').style.display = 'none';
+    document.getElementById('emptyView').style.display = 'block';
+    document.querySelector('#emptyView h3').textContent = 'Backend Not Configured';
+    document.querySelector('#emptyView p').textContent = 'The booking tracker will be available once the backend is set up.';
+    return;
+  }
+
+  try{
+    const j = await apiGet('/api/my-bookings', true);
+    document.getElementById('loadingView').style.display = 'none';
+    if(j.success){
+      renderBookings(j.bookings || []);
+    } else {
+      document.getElementById('emptyView').style.display = 'block';
+    }
+  }catch(e){
+    document.getElementById('loadingView').style.display = 'none';
+    document.getElementById('emptyView').style.display = 'block';
+  }
+}
+
+// INIT
+if(!isLoggedIn()){
+  document.getElementById('loggedOutView').style.display = 'block';
+} else {
+  loadBookings();
+}
+</script>
+</body>
+</html>

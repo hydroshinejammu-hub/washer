@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>My Account — DoorstepsWash Jammu</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css">
+<style>
+/* ── BACKEND WARNING BANNER ── */
+.no-backend-banner{display:none;background:#FFF3CD;border:1.5px solid #FFCA2C;border-radius:10px;padding:12px 14px;margin:14px 16px 0;font-size:.76rem;font-weight:600;color:#664D03;line-height:1.6}
+.no-backend-banner strong{color:#333;display:block;margin-bottom:2px}
+
+/* ── PROFILE CARD ── */
+.profile-card{background:linear-gradient(145deg,#003D35,#005046);margin:16px;border-radius:16px;padding:24px 20px 20px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 4px 20px rgba(0,107,94,.3)}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--yellow);color:#111;font-size:1.9rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin-bottom:4px;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.profile-name{color:#fff;font-size:1.05rem;font-weight:800;letter-spacing:-.2px}
+.profile-detail{font-size:.79rem;color:rgba(255,255,255,.7);font-weight:500}
+.profile-badge{background:rgba(255,255,255,.12);border-radius:100px;padding:4px 12px;font-size:.67rem;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+
+/* ── INFO GRID ── */
+.info-grid{margin:0 16px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-tile{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:13px 14px}
+.info-tile .it-label{font-size:.62rem;font-weight:700;color:var(--gray2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.info-tile .it-value{font-size:.84rem;font-weight:700;color:var(--dark)}
+.info-tile.full{grid-column:1/-1}
+
+/* ── MENU LIST ── */
+.menu-list{margin:0 16px 16px;display:flex;flex-direction:column;gap:8px}
+.menu-item{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:all .18s}
+.menu-item:active{background:var(--bg);transform:scale(.98)}
+.mi-icon{font-size:1.2rem;width:28px;text-align:center;flex-shrink:0}
+.mi-text{flex:1;font-size:.86rem;font-weight:700;color:var(--dark)}
+.mi-arrow{font-size:1.2rem;color:var(--gray2);font-weight:400}
+
+/* ── AUTH TABS ── */
+.auth-tabs{display:flex;gap:0;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:18px}
+.auth-tab{flex:1;text-align:center;padding:9px;border-radius:8px;font-size:.82rem;font-weight:700;color:var(--gray);cursor:pointer;transition:all .18s}
+.auth-tab.active{background:#fff;color:var(--teal);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+/* ── LOADING SKELETON ── */
+.profile-loading{margin:16px;border-radius:16px;background:#e8efee;height:180px;display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:.82rem;font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <button class="back-btn" onclick="location.href='index.html'">←</button>
+  <div class="header-logo desktop-only-logo" style="display:none"><div class="logo-ic">💧</div>DOORSTEPS<span class="shine">WASH</span> <span style="font-size:.65em;font-weight:600;opacity:.85">JAMMU</span></div>
+  <div class="header-title">My Account</div>
+  <a href="tel:9469793349" class="call-btn">📞 Call</a>
+</header>
+
+<!-- NO BACKEND WARNING -->
+<div class="no-backend-banner" id="noBackendBanner">
+  <strong>⚠️ Backend Not Connected</strong>
+  Open <code>app.js</code> and set <code>BACKEND_URL</code> to your deployed Worker URL. Login/Register will not work until then.
+</div>
+
+<!-- ───────── LOGGED OUT VIEW ───────── -->
+<div id="authView" style="display:none">
+  <div class="book-box rv" style="margin-top:16px">
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Login</div>
+      <div class="auth-tab" id="tabRegister" onclick="switchTab('register')">Register</div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <h2 style="font-size:.95rem;margin-bottom:14px">Welcome back! 👋</h2>
+      <div class="fg"><label>Mobile Number *</label><input class="fc" type="tel" id="l_phone" placeholder="+91 98765 43210" maxlength="15"><span class="ferr" id="le_phone">Enter a valid number</span></div>
+      <div class="fg"><label>Password *</label><input class="fc" type="password" id="l_password" placeholder="Enter your password"><span class="ferr" id="le_password">Enter your password</span></div>
+      <button class="sub-btn" id="loginBtn" onclick="doLogin()"><span id="loginTxt">🔓 Log In</span><div class="sp" id="loginSp"></div></button>
+      <div style="text-align:center;margin-top:12px">
+        <a href="forgot-password.html" style="color:var(--teal);font-size:.8rem;font-weight:700">Forgot Password?</a>
+      </div>
+      <div class="toast" id="loginToast"></div>
+    </div>
+
+    <!-- REGISTER FORM — STEP 1: Details -->
+    <div id="registerForm" style="display:none">
+      <h2 style="font-size:.95rem;margin-bottom:4px">Create your account ✨</h2>
+      <p style="font-size:.72rem;color:var(--gray);margin-bottom:14px;line-height:1.6">We'll send a 6-digit OTP to your email to verify your account.</p>
+      <div class="fg"><label>Full Name *</label><input class="fc" type="text" id="r_name" placeholder="e.g. Rahul Sharma"><span class="ferr" id="re_name">Enter your name</span></div>
+      <div class="fg"><label>Mobile Number *</label><input class="fc" type="tel" id="r_phone" placeholder="+91 98765 43210" maxlength="15"><span class="ferr" id="re_phone">Enter a valid number</span></div>
+      <div class="fg"><label>Email *</label><input class="fc" type="email" id="r_email" placeholder="you@example.com"><span class="ferr" id="re_email">Enter a valid email</span></div>
+      <div class="fg"><label>Password *</label><input class="fc" type="password" id="r_password" placeholder="At least 6 characters"><span class="ferr" id="re_password">Min 6 characters required</span></div>
+      <button class="sub-btn" id="registerBtn" onclick="sendOTP()"><span id="registerTxt">📧 Send OTP to Email</span><div class="sp" id="registerSp"></div></button>
+      <div class="toast" id="registerToast"></div>
+    </div>
+
+    <!-- REGISTER FORM — STEP 2: OTP Verify -->
+    <div id="otpForm" style="display:none">
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:2rem;margin-bottom:8px">📧</div>
+        <h2 style="font-size:.95rem;margin-bottom:4px">Check your email</h2>
+        <p style="font-size:.76rem;color:var(--gray);line-height:1.6">We sent a 6-digit OTP to<br><strong id="otpEmailDisplay" style="color:var(--teal)"></strong></p>
+      </div>
+      <div class="fg">
+        <label>Enter 6-Digit OTP *</label>
+        <input class="fc" type="number" id="r_otp" placeholder="e.g. 482910" maxlength="6"
+          style="font-size:1.4rem;font-weight:800;letter-spacing:6px;text-align:center"
+          oninput="if(this.value.length>6)this.value=this.value.slice(0,6)"
+          onkeydown="if(event.key==='Enter')verifyOTP()">
+        <span class="ferr" id="re_otp">Enter the 6-digit OTP</span>
+      </div>
+      <button class="sub-btn" id="verifyBtn" onclick="verifyOTP()"><span id="verifyTxt">✅ Verify & Create Account</span><div class="sp" id="verifySp"></div></button>
+      <div style="text-align:center;margin-top:12px">
+        <span style="font-size:.75rem;color:var(--gray)">Didn't receive? </span>
+        <span id="resendLink" style="font-size:.75rem;color:var(--teal);font-weight:700;cursor:pointer" onclick="resendOTP()">Resend OTP</span>
+        <span id="resendTimer" style="font-size:.75rem;color:var(--gray2);display:none"></span>
+      </div>
+      <div style="text-align:center;margin-top:8px">
+        <span style="font-size:.74rem;color:var(--gray);cursor:pointer" onclick="backToRegister()">← Change email / details</span>
+      </div>
+      <div class="toast" id="otpToast"></div>
+    </div>
+  </div>
+
+  <div class="sec rv" style="text-align:center">
+    <p style="font-size:.78rem;color:var(--gray);line-height:1.7">
+      Don't want to create an account? You can still <a href="booking.html" style="color:var(--teal);font-weight:700">book via WhatsApp</a> without logging in.
+    </p>
+  </div>
+</div>
+
+<!-- ───────── LOGGED IN VIEW ───────── -->
+<div id="profileView" style="display:none">
+
+  <!-- Loading state -->
+  <div class="profile-loading" id="profileLoading">Loading your profile…</div>
+
+  <!-- Profile card (hidden until loaded) -->
+  <div class="profile-card rv" id="profileCard" style="display:none">
+    <div class="profile-avatar" id="avatarInitial">U</div>
+    <div class="profile-name" id="profName">User</div>
+    <div class="profile-badge">Verified Customer</div>
+  </div>
+
+  <!-- Info tiles (hidden until loaded) -->
+  <div class="info-grid rv" id="infoGrid" style="display:none">
+    <div class="info-tile">
+      <div class="it-label">📞 Phone</div>
+      <div class="it-value" id="profPhone">—</div>
+    </div>
+    <div class="info-tile">
+      <div class="it-label">✉️ Email</div>
+      <div class="it-value" id="profEmail" style="font-size:.74rem;word-break:break-all">—</div>
+    </div>
+    <div class="info-tile full">
+      <div class="it-label">🆔 Account ID</div>
+      <div class="it-value" id="profId" style="color:var(--gray);font-size:.78rem">—</div>
+    </div>
+  </div>
+
+  <div class="menu-list rv" id="menuList" style="display:none">
+    <div class="menu-item" onclick="location.href='my-bookings.html'">
+      <div class="mi-icon">📋</div>
+      <div class="mi-text">My Bookings</div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="location.href='booking.html'">
+      <div class="mi-icon">🚗</div>
+      <div class="mi-text">Book a New Wash</div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="toggleEdit()">
+      <div class="mi-icon">✏️</div>
+      <div class="mi-text">Edit Profile</div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="window.open('https://wa.me/919469793349','_blank')">
+      <div class="mi-icon">💬</div>
+      <div class="mi-text">Contact Support</div>
+      <div class="mi-arrow">›</div>
+    </div>
+    <div class="menu-item" onclick="doLogout()" style="border-color:rgba(239,68,68,.2)">
+      <div class="mi-icon">🚪</div>
+      <div class="mi-text" style="color:#EF4444">Log Out</div>
+      <div class="mi-arrow">›</div>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE FORM -->
+  <div class="book-box rv" id="editForm" style="display:none;margin:0 16px 16px">
+    <h2 style="font-size:.95rem;margin-bottom:14px">✏️ Edit Profile</h2>
+    <div class="fg"><label>Full Name</label><input class="fc" type="text" id="e_name"></div>
+    <div class="fg"><label>Email</label><input class="fc" type="email" id="e_email" placeholder="you@example.com"></div>
+    <button class="sub-btn" id="saveBtn" onclick="saveProfile()"><span id="saveTxt">💾 Save Changes</span><div class="sp" id="saveSp"></div></button>
+    <div class="toast" id="editToast"></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bn-item" id="nav-home" onclick="location.href='index.html'"><div class="bn-ic">🏠</div><div class="bn-lbl">Home</div></div>
+  <div class="bn-item" id="nav-services" onclick="location.href='index.html#services'"><div class="bn-ic">🚗</div><div class="bn-lbl">Services</div></div>
+  <div class="bn-item" id="nav-bookings" onclick="location.href='my-bookings.html'"><div class="bn-ic">📋</div><div class="bn-lbl">My Bookings</div></div>
+  <div class="bn-item" id="nav-call" onclick="location.href='tel:9469793349'"><div class="bn-ic">📞</div><div class="bn-lbl">Call</div></div>
+  <div class="bn-item active" id="nav-account" onclick="location.href='account.html'"><div class="bn-ic">👤</div><div class="bn-lbl">Account</div></div>
+</nav>
+
+<script src="images.js"></script>
+<script>window.HS_PAGE="account";</script>
+<script src="app.js"></script>
+<script>
+function switchTab(tab){
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+  document.getElementById('loginForm').style.display = tab==='login' ? 'block':'none';
+  document.getElementById('registerForm').style.display = tab==='register' ? 'block':'none';
+}
+
+function showAuthToast(id, type, msg){
+  const t = document.getElementById(id);
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(()=>t.style.display='none', 6000);
+}
+
+async function doLogin(){
+  const phone = document.getElementById('l_phone').value.trim();
+  const pass = document.getElementById('l_password').value;
+  const ok = vf('l_phone','le_phone', /^[0-9+\s\-]{7,15}$/.test(phone)) & vf('l_password','le_password', pass.length>0);
+  if(!ok) return;
+
+  if(!BACKEND_URL){ showAuthToast('loginToast','bad','⚠️ Backend URL not set. Open app.js and set BACKEND_URL first.'); return; }
+
+  const btn=document.getElementById('loginBtn'), txt=document.getElementById('loginTxt'), sp=document.getElementById('loginSp');
+  btn.disabled=true; txt.textContent='Logging in…'; sp.style.display='block';
+
+  try{
+    const j = await apiPost('/api/login', {phone, password: pass});
+    if(j.success){
+      setToken(j.token);
+      setUser(j.user);
+      showAuthToast('loginToast','ok','✅ Logged in! Redirecting...');
+      setTimeout(()=>location.reload(), 800);
+    } else {
+      showAuthToast('loginToast','bad', '❌ ' + (j.message || 'Login failed'));
+    }
+  }catch(e){
+    showAuthToast('loginToast','bad','❌ Connection error. Check your internet and try again.');
+  }
+  btn.disabled=false; txt.textContent='🔓 Log In'; sp.style.display='none';
+}
+
+let _otpEmail = '';
+let _resendTimer = null;
+
+async function sendOTP(){
+  const name = document.getElementById('r_name').value.trim();
+  const phone = document.getElementById('r_phone').value.trim();
+  const email = document.getElementById('r_email').value.trim();
+  const pass = document.getElementById('r_password').value;
+
+  const ok =
+    vf('r_name','re_name', name.length>=2) &
+    vf('r_phone','re_phone', /^[0-9+\s\-]{7,15}$/.test(phone)) &
+    vf('r_email','re_email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) &
+    vf('r_password','re_password', pass.length>=6);
+  if(!ok) return;
+
+  const btn=document.getElementById('registerBtn'), txt=document.getElementById('registerTxt'), sp=document.getElementById('registerSp');
+  btn.disabled=true; txt.textContent='Sending OTP…'; sp.style.display='block';
+
+  try{
+    const j = await apiPost('/api/register/send-otp', {name, phone, email, password: pass});
+    if(j.success){
+      _otpEmail = email;
+      document.getElementById('otpEmailDisplay').textContent = email;
+      document.getElementById('registerForm').style.display='none';
+      document.getElementById('otpForm').style.display='block';
+      document.getElementById('r_otp').focus();
+      startResendTimer(60);
+      showAuthToast('otpToast','ok','✅ OTP sent! Check your email inbox.');
+    } else {
+      showAuthToast('registerToast','bad', '❌ ' + (j.message || 'Failed to send OTP'));
+    }
+  }catch(e){
+    showAuthToast('registerToast','bad','❌ Connection error. Try again.');
+  }
+  btn.disabled=false; txt.textContent='📧 Send OTP to Email'; sp.style.display='none';
+}
+
+async function verifyOTP(){
+  const otp = document.getElementById('r_otp').value.trim();
+  if(!vf('r_otp','re_otp', otp.length===6)) return;
+
+  const btn=document.getElementById('verifyBtn'), txt=document.getElementById('verifyTxt'), sp=document.getElementById('verifySp');
+  btn.disabled=true; txt.textContent='Verifying…'; sp.style.display='block';
+
+  try{
+    const j = await apiPost('/api/register/verify-otp', {email: _otpEmail, otp});
+    if(j.success){
+      setToken(j.token);
+      setUser(j.user);
+      showAuthToast('otpToast','ok','✅ Account created! Welcome 🎉');
+      setTimeout(()=>location.reload(), 900);
+    } else {
+      showAuthToast('otpToast','bad', '❌ ' + (j.message || 'Verification failed'));
+      document.getElementById('r_otp').value='';
+      document.getElementById('r_otp').focus();
+    }
+  }catch(e){
+    showAuthToast('otpToast','bad','❌ Connection error. Try again.');
+  }
+  btn.disabled=false; txt.textContent='✅ Verify & Create Account'; sp.style.display='none';
+}
+
+async function resendOTP(){
+  const name = document.getElementById('r_name').value.trim();
+  const phone = document.getElementById('r_phone').value.trim();
+  const email = _otpEmail;
+  const pass = document.getElementById('r_password').value;
+  try{
+    const j = await apiPost('/api/register/send-otp', {name, phone, email, password: pass});
+    if(j.success){
+      showAuthToast('otpToast','ok','✅ New OTP sent!');
+      startResendTimer(60);
+    } else {
+      showAuthToast('otpToast','bad','❌ ' + (j.message||'Could not resend OTP'));
+    }
+  }catch(e){
+    showAuthToast('otpToast','bad','❌ Connection error');
+  }
+}
+
+function startResendTimer(secs){
+  const link = document.getElementById('resendLink');
+  const timer = document.getElementById('resendTimer');
+  link.style.display='none'; timer.style.display='inline';
+  clearInterval(_resendTimer);
+  let left = secs;
+  timer.textContent = `Resend in ${left}s`;
+  _resendTimer = setInterval(()=>{
+    left--;
+    if(left<=0){
+      clearInterval(_resendTimer);
+      link.style.display='inline'; timer.style.display='none';
+    } else {
+      timer.textContent = `Resend in ${left}s`;
+    }
+  },1000);
+}
+
+function backToRegister(){
+  document.getElementById('otpForm').style.display='none';
+  document.getElementById('registerForm').style.display='block';
+}
+
+// Keep old name for compatibility
+async function doRegister(){ await sendOTP(); }
+
+function doLogout(){
+  if(BACKEND_URL) apiPost('/api/logout', {}, true).catch(()=>{});
+  clearToken();
+  location.reload();
+}
+
+function toggleEdit(){
+  const el = document.getElementById('editForm');
+  const user = getUser();
+  if(user){
+    document.getElementById('e_name').value = user.name || '';
+    document.getElementById('e_email').value = user.email || '';
+  }
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) el.scrollIntoView({behavior:'smooth'});
+}
+
+async function saveProfile(){
+  const name = document.getElementById('e_name').value.trim();
+  const email = document.getElementById('e_email').value.trim();
+  if(!BACKEND_URL){ showAuthToast('editToast','bad','⚠️ Backend URL not set.'); return; }
+
+  const btn=document.getElementById('saveBtn'), txt=document.getElementById('saveTxt'), sp=document.getElementById('saveSp');
+  btn.disabled=true; txt.textContent='Saving…'; sp.style.display='block';
+
+  try{
+    const j = await apiPost('/api/profile', {name, email}, true);
+    if(j.success){
+      const user = getUser();
+      user.name = name; user.email = email;
+      setUser(user);
+      showAuthToast('editToast','ok','✅ Profile updated!');
+      renderProfile(user);
+    } else {
+      showAuthToast('editToast','bad', '❌ ' + (j.message || 'Update failed'));
+    }
+  }catch(e){
+    showAuthToast('editToast','bad','❌ Connection error.');
+  }
+  btn.disabled=false; txt.textContent='💾 Save Changes'; sp.style.display='none';
+}
+
+function renderProfile(user){
+  if(!user) return;
+  document.getElementById('avatarInitial').textContent = (user.name||'U').charAt(0).toUpperCase();
+  document.getElementById('profName').textContent = user.name || 'User';
+  document.getElementById('profPhone').textContent = user.phone || '—';
+  document.getElementById('profEmail').textContent = user.email || '—';
+  document.getElementById('profId').textContent = 'HS-' + String(user.id || '?').padStart(4,'0');
+
+  // Show all sections
+  document.getElementById('profileLoading').style.display='none';
+  document.getElementById('profileCard').style.display='flex';
+  document.getElementById('infoGrid').style.display='grid';
+  document.getElementById('menuList').style.display='flex';
+}
+
+// INIT
+if(!BACKEND_URL){
+  document.getElementById('noBackendBanner').style.display='block';
+}
+
+if(isLoggedIn()){
+  document.getElementById('profileView').style.display='block';
+  // Show cached data immediately
+  const cached = getUser();
+  if(cached) renderProfile(cached);
+  // Then fetch fresh data from backend
+  refreshUserProfile().then(user => {
+    if(user) renderProfile(user);
+  });
+} else {
+  document.getElementById('profileView').style.display='none';
+  document.getElementById('authView').style.display='block';
+}
+</script>
+</body>
+</html>
